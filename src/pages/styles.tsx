@@ -16,12 +16,6 @@
 
 import React, {useEffect, useState} from 'react';
 
-export const COLORS = {
-      primary: '#669DF6',
-      grey: '#99A2AF',
-      bgcolor: '#F2F5F8',
-    };
-
 const useStyle = 
   () => {
     const [boxWidth, setBoxWidth] = useState('40vh');

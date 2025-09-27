@@ -14,19 +14,41 @@
  * limitations under the License.
  */
 
+import { GOOGLE_CLOUD_API_KEY } from '../context/constants';
+
 export async function sendRequestToGoogleCloudApi(
-    // tslint:disable-next-line:no-any Need to be able to serialize anything.
     endpoint: string, request: any, apikey: string, method = 'POST') {
   const endpointWithParam = endpoint + '?key=' + apikey;
   const response = await fetch(endpointWithParam, {
     method,
     mode: 'cors',
     cache: 'no-cache',
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: method === 'POST' ? JSON.stringify(request) : undefined,
   });
 
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
   const text = await response.text();
-  // tslint:disable:no-any no-unnecessary-type-assertion
   return JSON.parse(text) as any;
-  // tslint:enable:no-any no-unnecessary-type-assertion
+}
+
+export async function post(url: string, data: any) {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
 }

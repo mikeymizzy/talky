@@ -18,7 +18,7 @@
  * Represents a playable voice.
  */
 export interface Voice {
-  languageCode: string;
+  languageCodes: string[];
   name: string;
   ssmlGender: string;
   naturalSampleRateHertz: number;
@@ -29,115 +29,115 @@ export interface Voice {
  */
 export const ALL_VOICES: Voice[] = [
   {
-    'languageCode': 'da-DK',
+    'languageCodes': ['da-DK'],
     'name': 'da-DK-Wavenet-A',
     'ssmlGender': 'FEMALE',
     'naturalSampleRateHertz': 24000
   },
   {
-    'languageCode': 'de-DE',
+    'languageCodes': ['de-DE'],
     'name': 'de-DE-Wavenet-A',
     'ssmlGender': 'FEMALE',
     'naturalSampleRateHertz': 24000
   },
   {
-    'languageCode': 'de-DE',
+    'languageCodes': ['de-DE'],
     'name': 'de-DE-Wavenet-B',
     'ssmlGender': 'MALE',
     'naturalSampleRateHertz': 24000
   },
   {
-    'languageCode': 'de-DE',
+    'languageCodes': ['de-DE'],
     'name': 'de-DE-Wavenet-C',
     'ssmlGender': 'FEMALE',
     'naturalSampleRateHertz': 24000
   },
   {
-    'languageCode': 'de-DE',
+    'languageCodes': ['de-DE'],
     'name': 'de-DE-Wavenet-D',
     'ssmlGender': 'MALE',
     'naturalSampleRateHertz': 24000
   },
   {
-    'languageCode': 'en-AU',
+    'languageCodes': ['en-AU'],
     'name': 'en-AU-Wavenet-A',
     'ssmlGender': 'FEMALE',
     'naturalSampleRateHertz': 24000
   },
   {
-    'languageCode': 'en-AU',
+    'languageCodes': ['en-AU'],
     'name': 'en-AU-Wavenet-B',
     'ssmlGender': 'MALE',
     'naturalSampleRateHertz': 24000
   },
   {
-    'languageCode': 'en-AU',
+    'languageCodes': ['en-AU'],
     'name': 'en-AU-Wavenet-C',
     'ssmlGender': 'FEMALE',
     'naturalSampleRateHertz': 24000
   },
   {
-    'languageCode': 'en-AU',
+    'languageCodes': ['en-AU'],
     'name': 'en-AU-Wavenet-D',
     'ssmlGender': 'MALE',
     'naturalSampleRateHertz': 24000
   },
   {
-    'languageCode': 'en-GB',
+    'languageCodes': ['en-GB'],
     'name': 'en-GB-Wavenet-A',
     'ssmlGender': 'FEMALE',
     'naturalSampleRateHertz': 24000
   },
   {
-    'languageCode': 'en-GB',
+    'languageCodes': ['en-GB'],
     'name': 'en-GB-Wavenet-B',
     'ssmlGender': 'MALE',
     'naturalSampleRateHertz': 24000
   },
   {
-    'languageCode': 'en-GB',
+    'languageCodes': ['en-GB'],
     'name': 'en-GB-Wavenet-C',
     'ssmlGender': 'FEMALE',
     'naturalSampleRateHertz': 24000
   },
   {
-    'languageCode': 'en-GB',
+    'languageCodes': ['en-GB'],
     'name': 'en-GB-Wavenet-D',
     'ssmlGender': 'MALE',
     'naturalSampleRateHertz': 24000
   },
   {
-    'languageCode': 'en-US',
+    'languageCodes': ['en-US'],
     'name': 'en-US-Wavenet-A',
     'ssmlGender': 'MALE',
     'naturalSampleRateHertz': 24000
   },
   {
-    'languageCode': 'en-US',
+    'languageCodes': ['en-US'],
     'name': 'en-US-Wavenet-B',
     'ssmlGender': 'MALE',
     'naturalSampleRateHertz': 24000
   },
   {
-    'languageCode': 'en-US',
+    'languageCodes': ['en-US'],
     'name': 'en-US-Wavenet-C',
     'ssmlGender': 'FEMALE',
     'naturalSampleRateHertz': 24000
   },
   {
-    'languageCode': 'en-US',
+    'languageCodes': ['en-US'],
     'name': 'en-US-Wavenet-D',
     'ssmlGender': 'MALE',
     'naturalSampleRateHertz': 24000
   },
   {
-    'languageCode': 'en-US',
+    'languageCodes': ['en-US'],
     'name': 'en-US-Wavenet-E',
     'ssmlGender': 'FEMALE',
     'naturalSampleRateHertz': 24000
   },
   {
-    'languageCode': 'en-US',
+    'languageCodes': ['en-US'],
     'name': 'en-US-Wavenet-F',
     'ssmlGender': 'FEMALE',
     'naturalSampleRateHertz': 24000

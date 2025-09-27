@@ -15,11 +15,17 @@
  */
 
 import React, { createContext, useState, ReactNode } from 'react';
+import { Voice, DEFAULT_AVATAR_VOICE } from '../apis/voices';
 
 interface Config {
   personality: string;
   backStory: string;
   knowledgeBase: string;
+  voice: Voice;
+  temperature: number;
+  candidateCount: number;
+  topK: number;
+  topP: number;
 }
 
 export class ConfigManager {
@@ -36,17 +42,39 @@ export class ConfigManager {
       knowledgeBase: (
         "Open source software is kind of like a giant dog park where everyone can come together to play and have fun! It's software that is built by a community of developers who share their code and work together to make it better. I've seen all sorts of people - and dogs, too! - working on open source software. Some are professionals, some are hobbyists, and some are just learning. But no matter what their background is, they all come together to create something amazing. And the best part is, because it's free for anyone to use and modify, open source software is like a never-ending game of fetch. You can keep playing and improving and making it better and better, and there's no end to the fun you can have. It’s all about collaboration and teamwork. It's free for anyone to use and customize, which means that everyone can benefit from the work of the community. So whether you're a tech-savvy pup like me or a human who loves to tinker with code, open source software is the perfect way to get involved in a community of like-minded individuals and make something awesome together!"
       ),
+      voice: DEFAULT_AVATAR_VOICE.cloudTtsVoice!,
+      temperature: 0.25,
+      candidateCount: 1,
+      topK: 40,
+      topP: 0.95,
     };
     for (const key of Object.keys(this.state)) {
       const storedValue = localStorage.getItem(key);
-      if (storedValue)
-        this.state[key as keyof Config] = storedValue;
+      if (storedValue) {
+        if (key === 'voice') {
+          try {
+            this.state[key] = JSON.parse(storedValue);
+          } catch {
+            this.state[key] = DEFAULT_AVATAR_VOICE.cloudTtsVoice!;
+          }
+        } else if (key === 'temperature' || key === 'topP') {
+          this.state[key as keyof Config] = parseFloat(storedValue) as any;
+        } else if (key === 'candidateCount' || key === 'topK') {
+          this.state[key as keyof Config] = parseInt(storedValue) as any;
+        } else {
+          this.state[key as keyof Config] = storedValue as any;
+        }
+      }
     }
   }
 
   setField<K extends keyof Config>(key: K, value: Config[K]) {
     this.state[key] = value;
-    localStorage.setItem(key, value);
+    if (typeof value === 'object') {
+      localStorage.setItem(key, JSON.stringify(value));
+    } else {
+      localStorage.setItem(key, String(value));
+    }
   }
 }
 

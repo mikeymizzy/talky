@@ -21,9 +21,15 @@ import React, {useContext, useRef, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import useAvatarImage from '../apis/avatarImage';
 import {ConfigContext} from '../context/config';
-import useStyle, {COLORS} from './styles';
+import useStyle from './styles';
 import { Canvas } from '@react-three/fiber'
 import {Doggo} from '../components/ThreeJS/Doggo07';
+
+const COLORS = {
+  primary: '#667eea',
+  grey: '#99A2AF',
+  bgcolor: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+};
 
 const Personality: React.FC = () => {
   const optionsTab = 'options';
@@ -197,8 +203,18 @@ const Personality: React.FC = () => {
         elevation={0}
         sx={{width: boxWidth, alignSelf: 'center'}}>
         <Toolbar className="tool-bar">
-          <Box component="div" className="shadow-back-button"
-            sx={{ justifyContent: 'center', color: COLORS.bgcolor}}>
+          <Box component="div"
+            sx={{ 
+              justifyContent: 'center',
+              background: 'rgba(255, 255, 255, 0.9)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '50%',
+              width: '6vh',
+              height: '6vh',
+              display: 'flex',
+              alignItems: 'center',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+            }}>
             <IconButton onClick={handleBackButtonClick} aria-label="fullscreen">
               <ArrowBackIosNew sx={{fontSize: '3vh', color: COLORS.primary}} />
             </IconButton>
@@ -209,6 +225,7 @@ const Personality: React.FC = () => {
               fontSize: '3vh',
               paddingLeft: '2vh',
               color: COLORS.primary,
+              fontWeight: 600,
             }}>
             {pageTitle}
           </Typography>
@@ -225,7 +242,7 @@ const Personality: React.FC = () => {
           display: 'flex',
           flexDirection: 'column',
           minHeight: '100vh',
-          bgcolor: COLORS.bgcolor,
+          background: COLORS.bgcolor,
         }}>
         {renderAppBar()}
         <Box component="div" sx={{ width: boxWidth, height: '10vh' }}>
@@ -241,11 +258,19 @@ const Personality: React.FC = () => {
               width: boxWidth,
               height: '8vh',
               boxSizing: 'content-box',
-              borderRadius: '2.6vh',
-              boxShadow: '1vh 1vh 1vh 0.1vh rgba(0,0,0,0.2)',
+              borderRadius: '20px',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
               overflow: 'hidden',
               margin: '0 0 4vh 0',
-              bgcolor: '#FFFFFF',
+              background: 'rgba(255, 255, 255, 0.9)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                transform: 'translateY(-4px)',
+                boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
+              },
             }}
             onClick={() => handleTabClick(key)}>
             <Typography
@@ -255,6 +280,7 @@ const Personality: React.FC = () => {
                 fontSize: '2vh',
                 margin: '0 0 0 2vh',
                 color: COLORS.primary,
+                fontWeight: 500,
               }}
               align="left">
               {value.tabName}
@@ -282,12 +308,11 @@ const Personality: React.FC = () => {
           minHeight: '100vh',
           paddingLeft: '5vh',
           paddingRight: '5vh',
-          bgcolor: COLORS.bgcolor,
+          background: COLORS.bgcolor,
         }}>
         {renderAppBar()}
         <Box
           component="div"
-          className="shadow-box"
           sx={{
             alignSelf: 'center',
             width: boxWidth,
@@ -295,12 +320,19 @@ const Personality: React.FC = () => {
             boxSizing: 'border-box',
             overflow: 'hidden',
             margin: '4vh 0 2vh 0',
-            bgcolor: '#FFFFFF',
+            background: 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(20px)',
+            borderRadius: '24px',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
           }}>
           {storedImage === '' || storedImage === null ? (
             <Canvas
               camera={{ fov:45, rotation: [0,0,0], position: [0, 0, 10] }}
-              style={{ backgroundColor: '#FAD972' }}
+              style={{ 
+                background: 'linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%)',
+                borderRadius: '24px',
+              }}
             >
               <pointLight position={[0, 0, 10]} intensity={.03}/>
               <Doggo></Doggo>
@@ -311,6 +343,12 @@ const Personality: React.FC = () => {
               component="img"
               image={storedImage}
               alt="Uploaded Image"
+              sx={{
+                borderRadius: '24px',
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              }}
             />
           )}
         </Box>
@@ -325,9 +363,23 @@ const Personality: React.FC = () => {
             boxSizing: 'border-box',
           }}>
           <Button
-            className = "shadow-update-button"
             sx={{
+              background: 'rgba(255, 255, 255, 0.9)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '20px',
+              padding: '12px 24px',
+              fontFamily: 'Google Sans, sans-serif',
+              fontSize: '2vh',
+              textTransform: 'none',
+              fontWeight: 600,
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
               color: COLORS.grey,
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
+              },
+              transition: 'all 0.3s ease',
             }}
             onClick={handleCancelUploadImage}>
             Cancel
@@ -336,15 +388,22 @@ const Personality: React.FC = () => {
             id="uploadAvatarButton"
             variant="contained"
             component="label"
-            className = "shadow-update-button"
             sx={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              borderRadius: '20px',
+              padding: '12px 24px',
+              fontFamily: 'Google Sans, sans-serif',
+              fontSize: '2vh',
+              textTransform: 'none',
+              fontWeight: 600,
+              boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)',
               color: COLORS.primary,
               '&:hover': {
-                backgroundColor: COLORS.bgcolor,
-                '@media (hover: none)': {
-                  backgroundColor: COLORS.bgcolor,
-                },
+                background: 'linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 12px 40px rgba(102, 126, 234, 0.4)',
               },
+              transition: 'all 0.3s ease',
             }}>
             Change
             <input
@@ -371,12 +430,11 @@ const Personality: React.FC = () => {
           minHeight: '100vh',
           paddingLeft: '5vh',
           paddingRight: '5vh',
-          bgcolor: COLORS.bgcolor,
+          background: COLORS.bgcolor,
         }}>
         {renderAppBar()}
         <Box
           component="div"
-          className="shadow-box"
           key={fieldsMap.get(activeTab)?.title}
           sx={{
             display: 'flex',
@@ -386,6 +444,11 @@ const Personality: React.FC = () => {
             height: '52vh',
             width: boxWidth,
             overflow: 'scroll',
+            background: 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(20px)',
+            borderRadius: '24px',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
           }}>
           <TextField
             fullWidth
@@ -397,15 +460,18 @@ const Personality: React.FC = () => {
             }
             InputProps={{
               disableUnderline: true,
-              style: {padding: '10px'},
+              style: {
+                padding: '24px',
+                fontFamily: 'Google Sans, sans-serif',
+                fontSize: '16px',
+                lineHeight: '1.6',
+              },
             }}
             sx={{
-              borderRadius: '3vh',
+              borderRadius: '24px',
               height: '100%',
-              bgcolor: 'white',
+              background: 'transparent',
               boxSizing: 'content-box',
-              fontFamily: 'Google Sans, sans-serif',
-              fontSize: '13px',
               overflow: 'scroll',
             }}
           />
@@ -421,17 +487,44 @@ const Personality: React.FC = () => {
             boxSizing: 'border-box',
           }}>
           <Button
-            className = "shadow-update-button"
             sx={{
+              background: 'rgba(255, 255, 255, 0.9)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '20px',
+              padding: '12px 24px',
+              fontFamily: 'Google Sans, sans-serif',
+              fontSize: '2vh',
+              textTransform: 'none',
+              fontWeight: 600,
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
               color: COLORS.grey,
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
+              },
+              transition: 'all 0.3s ease',
             }}
             onClick={handleCancelButtonClick}>
             Cancel
           </Button>
           <Button
-            className = "shadow-update-button"
             sx={{
-              color: COLORS.primary,
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              borderRadius: '20px',
+              padding: '12px 24px',
+              fontFamily: 'Google Sans, sans-serif',
+              fontSize: '2vh',
+              textTransform: 'none',
+              fontWeight: 600,
+              boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)',
+              color: 'white',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 12px 40px rgba(102, 126, 234, 0.4)',
+              },
+              transition: 'all 0.3s ease',
             }}
             onClick={handleFinishButtonClick}>
             Finish
@@ -454,6 +547,8 @@ const Personality: React.FC = () => {
               fontSize: '1.5vh',
               lineHeight: '1.5vh',
               minHeight: '1em',
+              color: 'rgba(0, 0, 0, 0.6)',
+              textAlign: 'center',
             }}>
             Text limitation to more than {wordsLimitation} words.
           </Typography>

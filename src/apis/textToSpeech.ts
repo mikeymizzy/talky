@@ -18,16 +18,17 @@ import {Buffer} from 'buffer';
 import {useContext, useRef} from 'react';
 
 import {ConfigContext} from '../context/config';
-import {post} from './network';
+import {sendRequestToGoogleCloudApi} from './network';
+import {GOOGLE_CLOUD_API_KEY} from '../context/constants';
 import {Voice} from './voices';
 
 interface ProcessCallback {
   (audioData: Float32Array): void;
 }
 
-async function synthesize(text: string, voice: Voice) {
+async function synthesize(text: string, voice: Voice): Promise<Buffer | null> {
   if (!text) return null;
-  const response = await post(
+  const response = await sendRequestToGoogleCloudApi(
       'https://texttospeech.googleapis.com/v1/text:synthesize', {
         input: {text},
         voice: {
@@ -35,7 +36,7 @@ async function synthesize(text: string, voice: Voice) {
           name: voice.name,
         },
         audioConfig: {audioEncoding: 'LINEAR16', sampleRateHertz: 24000}
-      });
+      }, GOOGLE_CLOUD_API_KEY);
   if (response.audioContent) {
     return Buffer.from(response.audioContent, 'base64');
   }
