@@ -31,7 +31,7 @@ async function synthesize(text: string, voice: Voice) {
       'https://texttospeech.googleapis.com/v1/text:synthesize', {
         input: {text},
         voice: {
-          languageCode: voice.languageCodes[0],
+          languageCode: voice.languageCode,
           name: voice.name,
         },
         audioConfig: {audioEncoding: 'LINEAR16', sampleRateHertz: 24000}
@@ -45,7 +45,7 @@ async function synthesize(text: string, voice: Voice) {
 const useTextToSpeech = () => {
   const audioContext = useRef<AudioContext>(new AudioContext());
   const onProcessCallback = useRef<ProcessCallback>(() => {});
-  const {config} = useContext(ConfigContext);
+  const {state: config} = useContext(ConfigContext);
 
   const setOnProcessCallback = (callback: ProcessCallback) => {
     onProcessCallback.current = callback;

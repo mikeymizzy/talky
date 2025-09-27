@@ -26,7 +26,7 @@ export interface MessageProps {
 }
 
 const useLanguageModel = () => {
-  const {config} = useContext(ConfigContext);
+  const {state: config} = useContext(ConfigContext);
 
   const sendMessage = async (history: MessageProps[]) => {
     const response = await post(LANGUAGE_MODEL_URL, {

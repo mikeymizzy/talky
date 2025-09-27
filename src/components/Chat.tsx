@@ -15,7 +15,7 @@ interface ChatProps {
   onSendMessage: (message: string) => void;
   characterState: CharacterState;
   onMicButtonPressed: () => void;
-  bars: RefObject<HTMLDivElement[]>;
+  bars: RefObject<(HTMLDivElement | null)[]>;
 }
 
 const Chat: React.FC<ChatProps> = ({messages, onSendMessage, characterState, onMicButtonPressed, bars}) => {
@@ -101,9 +101,9 @@ const Chat: React.FC<ChatProps> = ({messages, onSendMessage, characterState, onM
         <div className="mic-container">
             {characterStateIcon[characterState]}
             <Box component="div" className={`bar-container ${characterState !== CharacterState.Listening ? 'hidden' : ''}`}>
-                <Box component="div" ref={(el: HTMLDivElement | null) => (bars.current[0] = el)} className="bar" />
-                <Box component="div" ref={(el: HTMLDivElement | null) => (bars.current[1] = el)} className="bar middle" />
-                <Box component="div" ref={(el: HTMLDivElement | null) => (bars.current[2] = el)} className="bar" />
+                <Box component="div" ref={(el: HTMLDivElement | null) => { if (bars.current) { bars.current[0] = el; } }} className="bar" />
+                <Box component="div" ref={(el: HTMLDivElement | null) => { if (bars.current) { bars.current[1] = el; } }} className="bar middle" />
+                <Box component="div" ref={(el: HTMLDivElement | null) => { if (bars.current) { bars.current[2] = el; } }} className="bar" />
             </Box>
         </div>
       </div>
