@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { KeyboardVoiceOutlined, MicOffOutlined, Pause, SettingsOutlined } from '@mui/icons-material';
-import { AppBar, Box, CardMedia, IconButton, Toolbar, Typography } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { SettingsOutlined } from '@mui/icons-material';
+import { AppBar, Box, Button, CardMedia, IconButton, Toolbar } from '@mui/material';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAvatarImage from '../apis/avatarImage';
-import useLanguageModel from '../apis/languageModel';
+import useLanguageModel, { MessageProps } from '../apis/languageModel';
 import useSpeechRecognition, { CharacterState } from '../apis/speechRecognition';
 import useTextToSpeech from '../apis/textToSpeech';
 import useStyle, {COLORS} from './styles';
@@ -27,6 +27,7 @@ import { Canvas } from '@react-three/fiber'
 import * as talkingHead from '../apis/talkingHead';
 import {Doggo} from '../components/ThreeJS/Doggo07';
 import {ZEPETO_TORSO_3} from '../components/ThreeJS/ZEPETO_TORSO_3';
+import Chat, { Message } from '../components/Chat';
 
 const useZepetoModel = false;
 
@@ -39,108 +40,77 @@ const Character: React.FC = () => {
     setCharacterState,
     onMicButtonPressed,
     setOnSpeechFoundCallback,
+    initMic,
   } = useSpeechRecognition();
-  const { convert, setOnProcessCallback } = useTextToSpeech();
+  const { convert, setOnProcessCallback, initTts } = useTextToSpeech();
   const { storedImage } = useAvatarImage();
-  const [transcript, setTranscript] = useState<String[]>(['You', '']);
   const {boxWidth} = useStyle();
-  talkingHead.runBlendshapesDemo(useZepetoModel);
+  const [isStarted, setIsStarted] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const messagesRef = useRef<Message[]>([]);
+  messagesRef.current = messages;
+
+  const handleSendMessage = useCallback(async (message: string) => {
+    const userMessage: Message = { text: message, isUser: true };
+    const newMessages = [...messagesRef.current, userMessage];
+    setMessages(newMessages);
+
+    const apiHistory: MessageProps[] = newMessages.map(msg => ({
+      author: msg.isUser ? '0' : '1',
+      content: msg.text,
+    }));
+
+    const botResponse = await sendMessage(apiHistory);
+    const botMessage: Message = { text: botResponse, isUser: false };
+    setMessages(prevMessages => [...prevMessages, botMessage]);
+
+    await convert(botResponse);
+    setCharacterState(CharacterState.Idle);
+  }, [sendMessage, convert, setCharacterState]);
 
   useEffect(() => {
-    setOnProcessCallback((audioData: Float32Array) => {
-      talkingHead.registerCallback(audioData);
-    });
-    setOnSpeechFoundCallback((transcription: string) => {
-      setTranscript(['You', transcription]);
-      sendMessage(transcription).then((result) => {
-        setTranscript(['Buddy', result]);
-        convert(result).then(() => {
-          setCharacterState(CharacterState.Idle);
-        });
+    if (isStarted) {
+      talkingHead.runBlendshapesDemo(useZepetoModel);
+      setOnProcessCallback((audioData: Float32Array) => {
+        talkingHead.registerCallback(audioData);
       });
-    });
-  }, []);
+      setOnSpeechFoundCallback((transcription: string) => {
+        handleSendMessage(transcription);
+      });
+    }
+  }, [isStarted, setOnProcessCallback, setOnSpeechFoundCallback, handleSendMessage]);
 
   const handleCustomizeButtonClick = () => {
-    if (characterState == CharacterState.Idle) {
+    if (characterState === CharacterState.Idle) {
       navigate('/personality');
     }
   };
 
-  const isIFrame = (input: HTMLElement | null): input is HTMLIFrameElement =>
-    input !== null && input.tagName === 'IFRAME';
-
-  const characterStateIcon = {
-    [CharacterState.Idle]: (
-      <IconButton
-        className="shadow-box"
-        onClick={onMicButtonPressed}
-        aria-label="Start Recording"
-        sx={{
-          width: '10vh',
-          height: '10vh',
-          marginTop: '30px',
-          padding: '16px',
-          borderRadius: '50%',
-          color: COLORS.primary,
-          backgroundColor: COLORS.bgcolor,
-          '&:hover': {
-            backgroundColor: COLORS.bgcolor,
-            '@media (hover: none)': {
-              backgroundColor: COLORS.bgcolor,
-            },
-          },
-        }}>
-        <KeyboardVoiceOutlined sx={{fontSize: '40px'}} />
-      </IconButton>
-    ),
-    [CharacterState.Listening]: (
-      <IconButton
-        className="shadow-box"
-        onClick={onMicButtonPressed}
-        color="error"
-        aria-label="Stop Recording"
-        sx={{
-          width: '10vh',
-          height: '10vh',
-          marginTop: '30px',
-          padding: '16px',
-          borderRadius: '50%',
-          backgroundColor: COLORS.bgcolor,
-          '&:hover': {
-            backgroundColor: COLORS.bgcolor,
-            '@media (hover: none)': {
-              backgroundColor: COLORS.bgcolor,
-            },
-          },
-        }}>
-        <Pause sx={{fontSize: '40px'}} />
-      </IconButton>
-    ),
-    [CharacterState.Speaking]: (
-      <IconButton
-        className="shadow-box"
-        onClick={onMicButtonPressed}
-        color="default"
-        aria-label="Recording Disabled"
-        sx={{
-          width: '10vh',
-          height: '10vh',
-          marginTop: '30px',
-          padding: '16px',
-          borderRadius: '50%',
-          backgroundColor: 'grey.400',
-          '&:hover': {
-            backgroundColor: 'grey.500',
-            '@media (hover: none)': {
-              backgroundColor: 'grey.400',
-            },
-          },
-        }}>
-        <MicOffOutlined sx={{fontSize: '40px'}} />
-      </IconButton>
-    ),
+  const handleStartClick = async () => {
+    await initMic();
+    initTts();
+    setIsStarted(true);
   };
+
+  if (!isStarted) {
+    return (
+      <Box
+        component="div"
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '100vh',
+          justifyContent: 'center',
+          alignItems: 'center',
+          bgcolor: COLORS.bgcolor,
+        }}
+      >
+        <Button variant="contained" onClick={handleStartClick}>
+          Start
+        </Button>
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -226,61 +196,16 @@ const Character: React.FC = () => {
           component="div"
           sx={{
             width: boxWidth,
-            textAlign: 'left',
-            boxSizing: 'content-box',
-            overflow: 'hidden',
+            height: '30vh', 
+            marginBottom: '2vh'
           }}>
-          <Typography>{transcript[0]}</Typography>
-        </Box>
-
-        <Box
-          component="div"
-          className="shadow-box"
-          sx={{
-            width: boxWidth,
-            height: '15vh',
-            verticalAlign: 'middle',
-            boxSizing: 'content-box',
-            margin: '2vh 0',
-            bgcolor: '#FFFFFF',
-          }}>
-          <Typography
-            style={{ color: COLORS.primary }}
-            sx={{
-              padding: '0.8vh',
-              margin: '1.2vh',
-              textAlign: 'left',
-              height: '11vh',
-              overflow: 'scroll',
-              '&::-webkit-scrollbar': {
-                width: '1.5px',
-                height: '0',
-              },
-              '&::-webkit-scrollbar-thumb': {
-                background: '#AAA',
-                borderRadius: '0.7px',
-              },
-              borderRadius: '4vh',
-              fontFamily: 'Google Sans, sans-serif',
-              fontSize: '14px',
-            }}>
-            {transcript[1]}
-          </Typography>
-        </Box>
-
-        <Box
-          component="div"
-          sx={{
-            justifyContent: 'center',
-            paddingTop: '2vh',
-            transform: 'translate(15px, -30px)',
-          }}>
-          {characterStateIcon[characterState]}
-          <Box component="div" className={`bar-container ${characterState != CharacterState.Listening ? 'hidden' : ''}`}>
-            <Box component="div" ref={(el: HTMLDivElement | null) => (bars.current[0] = el)} className="bar" />
-            <Box component="div" ref={(el: HTMLDivElement | null) => (bars.current[1] = el)} className="bar middle" />
-            <Box component="div" ref={(el: HTMLDivElement | null) => (bars.current[2] = el)} className="bar" />
-          </Box>
+          <Chat 
+            messages={messages} 
+            onSendMessage={handleSendMessage} 
+            characterState={characterState} 
+            onMicButtonPressed={onMicButtonPressed} 
+            bars={bars} 
+          />
         </Box>
       </Box>
     </Box>

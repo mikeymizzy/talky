@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Google LLC
+ * Copyright 2023 The MediaPipe Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-export const GOOGLE_CLOUD_API_KEY = 'AIzaSyA1K9hx6iLFfHQ-0qqojCAYxjTslu98ODw';
-
-export const LANGUAGE_MODEL_API_KEY = 'AIzaSyA1K9hx6iLFfHQ-0qqojCAYxjTslu98ODw';
-
-export const LANGUAGE_MODEL_BASE_URL =
-    'https://generativelanguage.googleapis.com';
-
-export const LANGUAGE_MODEL_URL = `${LANGUAGE_MODEL_BASE_URL}/v1beta/models/gemini-pro-latest:generateContent?key=${LANGUAGE_MODEL_API_KEY}`;
+/** Returns whether the underlying rendering engine is WebKit. */
+export function isWebKit(browser = navigator) {
+  const userAgent = browser.userAgent;
+  // Note that this returns true for Chrome on iOS (which is running WebKit) as
+  // it uses "CriOS".
+  return userAgent.includes('Safari') && !userAgent.includes('Chrome');
+}

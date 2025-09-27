@@ -48,16 +48,26 @@ const useSpeechRecognition =
         onSpeechFoundCallback.current = callback;
       };
 
-      const startRecording = async () => {
+      const initMic = async () => {
         try {
           stream.current =
               await navigator.mediaDevices.getUserMedia({audio: true});
+        } catch (err) {
+          console.error(err);
+        }
+      };
+
+      const startRecording = async () => {
+        if (!stream.current) {
+          return;
+        }
+        try {
           audioContext.current = new AudioContext();
           analyser.current = audioContext.current.createAnalyser();
           source.current =
               audioContext.current.createMediaStreamSource(stream.current);
           source.current.connect(analyser.current);
-          mediaRecorder.current = new MediaRecorder(stream.current);
+          mediaRecorder.current = new MediaRecorder(stream.current, {mimeType: 'audio/webm'});
           mediaRecorder.current.ondataavailable = (event) => {
             if (event.data.size > 0) {
               recordedChunks.current.push(event.data);
@@ -65,7 +75,6 @@ const useSpeechRecognition =
           };
           mediaRecorder.current.start();
           setCharacterState(CharacterState.Listening);
-          // talkingHead.setIsThinking(true);
         } catch (err) {
           console.error(err);
         }
@@ -73,9 +82,6 @@ const useSpeechRecognition =
 
       const stopRecording =
           async () => {
-        if (stream.current) {
-          stream.current.getTracks().forEach((track) => track.stop());
-        }
         if (audioContext.current) {
           if (source.current) {
             source.current.disconnect();
@@ -83,7 +89,6 @@ const useSpeechRecognition =
           if (analyser.current) {
             analyser.current.disconnect();
           }
-          audioContext.current.close();
         }
         if (mediaRecorder.current) {
           mediaRecorder.current.stop();
@@ -106,7 +111,6 @@ const useSpeechRecognition =
             } else {
               setCharacterState(CharacterState.Idle);
             }
-            talkingHead.setIsThinking(false);
           }
         };
       }
@@ -173,28 +177,35 @@ const useSpeechRecognition =
       }, [characterState, bars, analyser]);
 
       const recognize = async (audioString: string) => {
-        await sendRequestToGoogleCloudApi(
-            'https://speech.googleapis.com/v1p1beta1/speech:recognize', {
-              config: {
-                encoding: 'WEBM_OPUS',
-                sampleRateHertz: 48000,
-                audioChannelCount: 1,
-                enableAutomaticPunctuation: true,
-                languageCode: 'en-US',
-                profanityFilter: true,
-              },
-              audio: {content: audioString},
-            },
-            GOOGLE_CLOUD_API_KEY)
-            .then(response => {
-              if (response !== null && response.results !== undefined) {
-                const topTranscriptionAlternative = response.results[0];
-                const transcript =
-                    topTranscriptionAlternative.alternatives[0].transcript;
+        try {
+            const response = await sendRequestToGoogleCloudApi(
+                'https://speech.googleapis.com/v1p1beta1/speech:recognize',
+                {
+                    config: {
+                        encoding: 'WEBM_OPUS',
+                        sampleRateHertz: 48000,
+                        audioChannelCount: 1,
+                        enableAutomaticPunctuation: true,
+                        languageCode: 'en-US',
+                        profanityFilter: true,
+                    },
+                    audio: { content: audioString },
+                },
+                GOOGLE_CLOUD_API_KEY
+            );
+
+            if (response && response.results && response.results.length > 0 && response.results[0].alternatives && response.results[0].alternatives.length > 0) {
+                const transcript = response.results[0].alternatives[0].transcript;
                 onSpeechFoundCallback.current(transcript);
-              }
-            });
-      };
+            } else {
+                console.log('No speech recognized.');
+                setCharacterState(CharacterState.Idle);
+            }
+        } catch (error) {
+            console.error('Error in speech recognition:', error);
+            setCharacterState(CharacterState.Idle);
+        }
+    };
 
       const onMicButtonPressed =
           () => {
@@ -211,6 +222,7 @@ const useSpeechRecognition =
         setCharacterState,
         onMicButtonPressed,
         setOnSpeechFoundCallback,
+        initMic,
       };
     }
 
